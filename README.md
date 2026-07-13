@@ -32,4 +32,16 @@ This project has two main objectives:
 1. Prepare for the **SAP Certified Backend Developer – ABAP Cloud** practical certification.
 2. Showcase modern SAP development skills through a realistic enterprise application.
 
+## Engineering Principles
+
+This project is built around the following engineering principles:
+
+- Design before implementation
+- Business drives technology
+- Clean Core over quick fixes
+- Readability over cleverness
+- Simplicity over complexity
+- Documentation is part of the product
+- Git history tells the story of the project
+
 The application follows Clean Core principles and is developed using cloud-ready SAP technologies and best practices.
