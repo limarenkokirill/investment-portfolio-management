@@ -10,13 +10,12 @@ The project follows the principle that every significant architectural decision 
 
 # Decision Log
 
-| ID | Decision | Status |
-|----|----------|--------|
-| DEC-001 | Use UUID as technical keys | Accepted |
-| DEC-002 | Portfolio is the primary Business Object | Accepted |
-| DEC-003 | Positions are calculated instead of stored | Accepted |
-| DEC-004 | Architecture follows Clean Core principles | Accepted |
-| DEC-005 | Business logic before technical implementation | Accepted |
+| ID | Title | Status |
+|----|-------|--------|
+| DEC-001 | Use UUID as technical key | Accepted |
+| DEC-002 | Package Structure | Accepted |
+| DEC-003 | Portfolio is Aggregate Root | Proposed |
+| DEC-004 | Positions are calculated | Proposed |
 
 ---
 
