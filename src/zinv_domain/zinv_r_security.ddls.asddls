@@ -3,16 +3,18 @@
 @Metadata.ignorePropagatedAnnotations: true
 define root view entity ZINV_R_SECURITY as select from zinv_security as securityDB
 {
-    key securityDB.securityuuid as Securityuuid,
-        securityDB.isin as Isin,
-        securityDB.ticker as Ticker,
-        securityDB.securityname as Securityname,
-        securityDB.issuer as Issuer,
-        securityDB.opendate as Opendate,
-        securityDB.closedate as Closedate,
-        securityDB.securitytype as Securitytype,
-        securityDB.currency as Currency,
-        securityDB.status as Status,
+  key securityDB.securityuuid          as SecurityUUID,
+
+      securityDB.isin                  as ISIN,
+      securityDB.ticker                as Ticker,
+      securityDB.securityname          as SecurityName,
+      securityDB.issuer                as Issuer,
+      securityDB.opendate              as OpenDate,
+      securityDB.closedate             as CloseDate,
+      securityDB.securitytype          as SecurityType,
+      securityDB.currency              as Currency,
+      securityDB.status                as Status,
+
       @Semantics.user.createdBy: true
       securityDB.created_by            as CreatedBy,
 
