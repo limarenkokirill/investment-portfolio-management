@@ -1,0 +1,5 @@
+CLASS zbp_inv_r_security DEFINITION PUBLIC ABSTRACT FINAL FOR BEHAVIOR OF zinv_r_security.
+ENDCLASS.
+
+CLASS zbp_inv_r_security IMPLEMENTATION.
+ENDCLASS.

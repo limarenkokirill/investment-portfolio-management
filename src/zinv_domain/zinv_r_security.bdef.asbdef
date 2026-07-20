@@ -1,0 +1,49 @@
+
+managed implementation in class zbp_inv_r_security unique;
+strict ( 2 );
+
+define behavior for ZINV_R_SECURITY alias Security
+persistent table zinv_security
+lock master
+authorization master ( instance )
+etag master LocalLastChangedAt
+{
+  create ( authorization : global );
+  update;
+  field ( numbering : managed, readonly ) SecurityUUID;
+  field ( mandatory : create ) Ticker, OpenDate;
+  field ( mandatory : create, readonly : update )
+  ISIN,
+  SecurityName,
+  Issuer,
+  SecurityType,
+  Currency;
+  field ( readonly )
+  Status,
+  CloseDate,
+  CreatedBy,
+  CreatedAt,
+  LocalLastChangedBy,
+  LocalLastChangedAt,
+  LastChangedAt;
+
+  mapping for zinv_security
+  {
+    SecurityUUID         = securityuuid;
+    ISIN                 = isin;
+    Ticker               = ticker;
+    SecurityName         = securityname;
+    Issuer               = issuer;
+    OpenDate             = opendate;
+    CloseDate            = closedate;
+    SecurityType         = securitytype;
+    Currency             = currency;
+    Status               = status;
+    CreatedBy            = created_by;
+    CreatedAt            = created_at;
+    LocalLastChangedBy   = local_last_changed_by;
+    LocalLastChangedAt   = local_last_changed_at;
+    LastChangedAt        = last_changed_at;
+  }
+
+}
