@@ -5,10 +5,10 @@ strict ( 2 );
 define behavior for ZINV_R_SECURITY alias Security
 persistent table zinv_security
 lock master
-authorization master ( instance )
+authorization master ( global )
 etag master LocalLastChangedAt
 {
-  create ( authorization : global );
+  create;
   update;
   field ( numbering : managed, readonly ) SecurityUUID;
   field ( mandatory : create ) Ticker, OpenDate;
@@ -26,6 +26,8 @@ etag master LocalLastChangedAt
   LocalLastChangedBy,
   LocalLastChangedAt,
   LastChangedAt;
+
+  determination SetInitialStatus on modify {create;}
 
   mapping for zinv_security
   {
