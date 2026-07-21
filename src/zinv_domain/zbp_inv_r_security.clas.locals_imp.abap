@@ -72,6 +72,7 @@ CLASS lhc_Security IMPLEMENTATION.
 
     ENDLOOP.
 
+
     CHECK securities_for_update IS NOT INITIAL.
 
     MODIFY ENTITIES OF zinv_r_security IN LOCAL MODE
