@@ -16,8 +16,11 @@ CLASS zcl_inv_security_eml IMPLEMENTATION.
     DATA test_time TYPE c LENGTH 6.
     test_time = cl_abap_context_info=>get_system_time(  ).
 
-    DATA(test_isin)   = CONV zinv_isin( |DETEST{ test_time }| ).
-    DATA(test_ticker) = CONV zinv_ticker( |T{ test_time }| ).
+DATA(test_isin) =
+  CONV zinv_isin( |detest{ test_time }| ).
+
+DATA(test_ticker) =
+  CONV zinv_ticker( |t{ test_time }| ).
 
     MODIFY ENTITIES OF zinv_r_security
       ENTITY Security

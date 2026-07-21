@@ -28,6 +28,7 @@ etag master LocalLastChangedAt
   LastChangedAt;
 
   determination SetInitialStatus on modify {create;}
+  determination NormalizeIdentifiers on modify { create; field Ticker; }
 
   mapping for zinv_security
   {
