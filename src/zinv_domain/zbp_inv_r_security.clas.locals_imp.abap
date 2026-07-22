@@ -12,6 +12,10 @@ CLASS lhc_Security DEFINITION INHERITING FROM cl_abap_behavior_handler.
   TYPE string
   VALUE 'VALIDATE_ISIN'.
 
+    CONSTANTS c_state_area_validate_opendate
+    TYPE string
+    VALUE 'VALIDATE_OPEN_DATE'.
+
     METHODS SetInitialStatus FOR DETERMINE ON MODIFY
       IMPORTING keys FOR Security~SetInitialStatus.
 
@@ -20,6 +24,9 @@ CLASS lhc_Security DEFINITION INHERITING FROM cl_abap_behavior_handler.
 
     METHODS ValidateISIN FOR VALIDATE ON SAVE
       IMPORTING keys FOR Security~ValidateISIN.
+
+    METHODS ValidateOpenDate FOR VALIDATE ON SAVE
+      IMPORTING keys FOR Security~ValidateOpenDate.
 
 ENDCLASS.
 
@@ -130,6 +137,47 @@ CLASS lhc_Security IMPLEMENTATION.
       ) TO reported-Security.
 
     ENDLOOP.
+
+
+  ENDMETHOD.
+
+  METHOD ValidateOpenDate.
+
+    READ ENTITIES OF zinv_r_security IN LOCAL MODE
+    ENTITY Security
+    FIELDS ( isin )
+    WITH CORRESPONDING #( keys )
+    RESULT DATA(securities).
+
+    DATA(system_date) =
+        cl_abap_context_info=>get_system_date( ).
+
+  LOOP AT securities INTO DATA(security).
+
+    APPEND VALUE #(
+      %tky        = security-%tky
+      %state_area = c_state_area_validate_opendate
+    ) TO reported-Security.
+
+    IF security-OpenDate <= system_date.
+      CONTINUE.
+    ENDIF.
+
+    APPEND VALUE #(
+      %tky = security-%tky
+    ) TO failed-Security.
+
+    APPEND VALUE #(
+      %tky        = security-%tky
+      %state_area = c_state_area_validate_opendate
+      %msg        = new_message_with_text(
+        severity = if_abap_behv_message=>severity-error
+        text     = `Open date cannot be in the future.`
+      )
+      %element-OpenDate = if_abap_behv=>mk-on
+    ) TO reported-Security.
+
+  ENDLOOP.
 
 
   ENDMETHOD.

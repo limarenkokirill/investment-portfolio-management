@@ -30,6 +30,7 @@ etag master LocalLastChangedAt
   determination SetInitialStatus on modify {create;}
   determination NormalizeIdentifiers on modify { create; field Ticker; }
   validation ValidateISIN on save  { create; field isin; }
+  validation ValidateOpenDate on save  { create; field OpenDate; }
 
   mapping for zinv_security
   {
