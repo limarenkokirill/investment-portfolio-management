@@ -145,7 +145,7 @@ CLASS lhc_Security IMPLEMENTATION.
 
     READ ENTITIES OF zinv_r_security IN LOCAL MODE
     ENTITY Security
-    FIELDS ( isin )
+    FIELDS ( OpenDate )
     WITH CORRESPONDING #( keys )
     RESULT DATA(securities).
 
