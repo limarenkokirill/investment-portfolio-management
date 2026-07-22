@@ -8,11 +8,18 @@ CLASS lhc_Security DEFINITION INHERITING FROM cl_abap_behavior_handler.
       TYPE zinv_sec_status
       VALUE 'ACTIVE'.
 
+    CONSTANTS c_state_area_validate_isin
+  TYPE string
+  VALUE 'VALIDATE_ISIN'.
+
     METHODS SetInitialStatus FOR DETERMINE ON MODIFY
       IMPORTING keys FOR Security~SetInitialStatus.
 
     METHODS NormalizeIdentifiers FOR DETERMINE ON MODIFY
       IMPORTING keys FOR Security~NormalizeIdentifiers.
+
+    METHODS ValidateISIN FOR VALIDATE ON SAVE
+      IMPORTING keys FOR Security~ValidateISIN.
 
 ENDCLASS.
 
@@ -82,6 +89,48 @@ CLASS lhc_Security IMPLEMENTATION.
       REPORTED DATA(update_reported).
 
     reported = CORRESPONDING #( DEEP update_reported ).
+
+  ENDMETHOD.
+
+  METHOD ValidateISIN.
+
+    READ ENTITIES OF zinv_r_security IN LOCAL MODE
+    ENTITY Security
+    FIELDS ( isin )
+    WITH CORRESPONDING #( keys )
+    RESULT DATA(securities).
+
+    LOOP AT securities INTO DATA(security).
+
+      "Invalidate an earlier state message for this validation
+      APPEND VALUE #(
+        %tky        = security-%tky
+        %state_area = c_state_area_validate_isin
+      ) TO reported-Security.
+
+      IF matches(
+           val   = security-isin
+           pcre = `[A-Z0-9]{12}`
+         ).
+        CONTINUE.
+      ENDIF.
+
+      APPEND VALUE #(
+        %tky = security-%tky
+      ) TO failed-Security.
+
+      APPEND VALUE #(
+        %tky        = security-%tky
+        %state_area = c_state_area_validate_isin
+        %msg        = new_message_with_text(
+          severity = if_abap_behv_message=>severity-error
+          text     = `ISIN must contain exactly 12 uppercase letters or digits.`
+        )
+        %element-isin = if_abap_behv=>mk-on
+      ) TO reported-Security.
+
+    ENDLOOP.
+
 
   ENDMETHOD.
 

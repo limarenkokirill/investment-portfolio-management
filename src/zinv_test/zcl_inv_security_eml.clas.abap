@@ -17,37 +17,38 @@ CLASS zcl_inv_security_eml IMPLEMENTATION.
     test_time = cl_abap_context_info=>get_system_time(  ).
 
 DATA(test_isin) =
-  CONV zinv_isin( |detest{ test_time }| ).
+ CONV zinv_isin( |detest{ test_time }| ).
+
 
 DATA(test_ticker) =
   CONV zinv_ticker( |t{ test_time }| ).
 
-    MODIFY ENTITIES OF zinv_r_security
-      ENTITY Security
-        CREATE FIELDS (
-          ISIN
-          Ticker
-          SecurityName
-          Issuer
-          OpenDate
-          SecurityType
-          Currency
-        )
-        WITH VALUE #(
-          (
-            %cid         = 'SECURITY_CREATE_1'
-            ISIN         = test_isin
-            Ticker       = test_ticker
-            SecurityName = 'EML Test Security'
-            Issuer       = 'Test Issuer'
-            OpenDate     = cl_abap_context_info=>get_system_date( )
-            SecurityType = 'STOCK'
-            Currency     = 'EUR'
-          )
-        )
-      MAPPED DATA(mapped)
-      FAILED DATA(failed)
-      REPORTED DATA(reported).
+MODIFY ENTITIES OF zinv_r_security
+  ENTITY Security
+    CREATE FIELDS (
+      isin
+      Ticker
+      SecurityName
+      Issuer
+      OpenDate
+      SecurityType
+      Currency
+    )
+    WITH VALUE #(
+      (
+        %cid         = 'SECURITY_CREATE_1'
+        isin         = test_isin
+        Ticker       = test_ticker
+        SecurityName = 'EML Test Security'
+        Issuer       = 'Test Issuer'
+        OpenDate     = cl_abap_context_info=>get_system_date( )
+        SecurityType = 'STOCK'
+        Currency     = 'EUR'
+      )
+    )
+  MAPPED DATA(mapped)
+  FAILED DATA(failed)
+  REPORTED DATA(reported).
 
     out->write( |CREATE request completed| ).
     out->write( mapped-Security ).
