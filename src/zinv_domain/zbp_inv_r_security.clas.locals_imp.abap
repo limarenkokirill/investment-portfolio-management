@@ -9,12 +9,20 @@ CLASS lhc_Security DEFINITION INHERITING FROM cl_abap_behavior_handler.
       VALUE 'ACTIVE'.
 
     CONSTANTS c_state_area_validate_isin
-  TYPE string
-  VALUE 'VALIDATE_ISIN'.
+      TYPE string
+        VALUE 'VALIDATE_ISIN'.
 
     CONSTANTS c_state_area_validate_opendate
-    TYPE string
-    VALUE 'VALIDATE_OPEN_DATE'.
+        TYPE string
+        VALUE 'VALIDATE_OPEN_DATE'.
+
+    CONSTANTS c_security_type_stock
+        TYPE zinv_sec_type
+        VALUE 'STOCK'.
+
+    CONSTANTS c_state_area_validate_sec_type
+      TYPE string
+      VALUE 'VALIDATE_SECURITY_TYPE'.
 
     METHODS SetInitialStatus FOR DETERMINE ON MODIFY
       IMPORTING keys FOR Security~SetInitialStatus.
@@ -27,6 +35,8 @@ CLASS lhc_Security DEFINITION INHERITING FROM cl_abap_behavior_handler.
 
     METHODS ValidateOpenDate FOR VALIDATE ON SAVE
       IMPORTING keys FOR Security~ValidateOpenDate.
+    METHODS ValiddateSecurityType FOR VALIDATE ON SAVE
+      IMPORTING keys FOR Security~ValiddateSecurityType.
 
 ENDCLASS.
 
@@ -152,33 +162,59 @@ CLASS lhc_Security IMPLEMENTATION.
     DATA(system_date) =
         cl_abap_context_info=>get_system_date( ).
 
-  LOOP AT securities INTO DATA(security).
+    LOOP AT securities INTO DATA(security).
 
-    APPEND VALUE #(
-      %tky        = security-%tky
-      %state_area = c_state_area_validate_opendate
-    ) TO reported-Security.
+      APPEND VALUE #(
+        %tky        = security-%tky
+        %state_area = c_state_area_validate_opendate
+      ) TO reported-Security.
 
-    IF security-OpenDate <= system_date.
-      CONTINUE.
-    ENDIF.
+      IF security-OpenDate <= system_date.
+        CONTINUE.
+      ENDIF.
 
-    APPEND VALUE #(
+      APPEND VALUE #(
+        %tky = security-%tky
+      ) TO failed-Security.
+
+      APPEND VALUE #(
+        %tky        = security-%tky
+        %state_area = c_state_area_validate_opendate
+        %msg        = new_message_with_text(
+          severity = if_abap_behv_message=>severity-error
+          text     = `Open date cannot be in the future.`
+        )
+        %element-OpenDate = if_abap_behv=>mk-on
+      ) TO reported-Security.
+
+    ENDLOOP.
+
+  ENDMETHOD.
+
+  METHOD ValiddateSecurityType.
+
+    READ ENTITIES OF zinv_r_security IN LOCAL MODE
+    ENTITY Security
+    FIELDS ( OpenDate )
+    WITH CORRESPONDING #( keys )
+    RESULT DATA(securities).
+
+    LOOP AT securities INTO DATA(security).
+
+      IF security-SecurityType = c_security_type_stock.
+        CONTINUE.
+      ENDIF.
+
+      APPEND VALUE #( %tky = security-%tky ) TO failed-security.
+
+      APPEND VALUE #(
       %tky = security-%tky
-    ) TO failed-Security.
-
-    APPEND VALUE #(
-      %tky        = security-%tky
       %state_area = c_state_area_validate_opendate
-      %msg        = new_message_with_text(
-        severity = if_abap_behv_message=>severity-error
-        text     = `Open date cannot be in the future.`
-      )
-      %element-OpenDate = if_abap_behv=>mk-on
-    ) TO reported-Security.
+      %msg = new_message_with_text(
+      severity =  if_abap_behv_message=>severity-error
+      text = 'Security Type can be only <STOCK>' ) ) TO reported-security.
 
-  ENDLOOP.
-
+    ENDLOOP.
 
   ENDMETHOD.
 
