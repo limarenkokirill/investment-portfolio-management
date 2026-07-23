@@ -35,8 +35,9 @@ CLASS lhc_Security DEFINITION INHERITING FROM cl_abap_behavior_handler.
 
     METHODS ValidateOpenDate FOR VALIDATE ON SAVE
       IMPORTING keys FOR Security~ValidateOpenDate.
-    METHODS ValiddateSecurityType FOR VALIDATE ON SAVE
-      IMPORTING keys FOR Security~ValiddateSecurityType.
+
+    METHODS ValidateSecurityType FOR VALIDATE ON SAVE
+      IMPORTING keys FOR Security~ValidateSecurityType.
 
 ENDCLASS.
 
@@ -191,15 +192,20 @@ CLASS lhc_Security IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD ValiddateSecurityType.
+  METHOD ValidateSecurityType.
 
     READ ENTITIES OF zinv_r_security IN LOCAL MODE
     ENTITY Security
-    FIELDS ( OpenDate )
+    FIELDS ( SecurityType )
     WITH CORRESPONDING #( keys )
     RESULT DATA(securities).
 
     LOOP AT securities INTO DATA(security).
+
+      APPEND VALUE #(
+      %tky        = security-%tky
+      %state_area = c_state_area_validate_sec_type
+      ) TO reported-Security.
 
       IF security-SecurityType = c_security_type_stock.
         CONTINUE.
@@ -209,7 +215,8 @@ CLASS lhc_Security IMPLEMENTATION.
 
       APPEND VALUE #(
       %tky = security-%tky
-      %state_area = c_state_area_validate_opendate
+      %state_area = c_state_area_validate_sec_type
+      %element-securitytype = if_abap_behv=>mk-on
       %msg = new_message_with_text(
       severity =  if_abap_behv_message=>severity-error
       text = 'Security Type can be only <STOCK>' ) ) TO reported-security.

@@ -31,7 +31,7 @@ etag master LocalLastChangedAt
   determination NormalizeIdentifiers on modify { create; field Ticker; }
   validation ValidateISIN on save  { create; field isin; }
   validation ValidateOpenDate on save  { create; field OpenDate; }
-  validation ValiddateSecurityType on save { create; field SecurityType; }
+  validation ValidateSecurityType on save { create; field SecurityType; }
 
   mapping for zinv_security
   {
