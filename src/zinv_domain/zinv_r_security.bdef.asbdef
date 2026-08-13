@@ -32,6 +32,7 @@ etag master LocalLastChangedAt
   validation ValidateISIN on save  { create; field isin; }
   validation ValidateOpenDate on save  { create; field OpenDate; }
   validation ValidateSecurityType on save { create; field SecurityType; }
+  validation validatesecurityTicker on save { create; field Ticker; }
 
   mapping for zinv_security
   {

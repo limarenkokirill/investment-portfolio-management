@@ -19,6 +19,9 @@ CLASS zcl_inv_security_eml IMPLEMENTATION.
     DATA(test_isin) =
      CONV zinv_isin( |detest{ test_time }| ).
 
+*    DATA(test_isin2) =
+*     CONV zinv_isin( |datest{ test_time }| ).>
+
 
     DATA(test_ticker) =
       CONV zinv_ticker( |t{ test_time }| ).
@@ -37,6 +40,17 @@ CLASS zcl_inv_security_eml IMPLEMENTATION.
         WITH VALUE #(
           (
             %cid         = 'SECURITY_CREATE_1'
+            isin         = test_isin
+            Ticker       = test_ticker
+            SecurityName = 'EML Test Security'
+            Issuer       = 'Test Issuer'
+            OpenDate     = cl_abap_context_info=>get_system_date( )
+
+            SecurityType = 'STOCK'
+            Currency     = 'EUR'
+          )
+          (
+            %cid         = 'SECURITY_CREATE_2'
             isin         = test_isin
             Ticker       = test_ticker
             SecurityName = 'EML Test Security'

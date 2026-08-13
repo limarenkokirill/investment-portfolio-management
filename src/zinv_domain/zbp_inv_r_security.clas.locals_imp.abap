@@ -12,6 +12,7 @@ CLASS lhc_Security DEFINITION INHERITING FROM cl_abap_behavior_handler.
       TYPE string
         VALUE 'VALIDATE_ISIN'.
 
+
     CONSTANTS c_state_area_validate_opendate
         TYPE string
         VALUE 'VALIDATE_OPEN_DATE'.
@@ -23,6 +24,14 @@ CLASS lhc_Security DEFINITION INHERITING FROM cl_abap_behavior_handler.
     CONSTANTS c_state_area_validate_sec_type
       TYPE string
       VALUE 'VALIDATE_SECURITY_TYPE'.
+
+    CONSTANTS c_state_area_unique_isin
+        TYPE string
+        VALUE 'VALIDATE_UNIQUE_ISIN'.
+
+    CONSTANTS c_state_area_unique_ticker
+      TYPE string
+      VALUE 'VALIDATE_UNIQUE_TICKER'.
 
     METHODS SetInitialStatus FOR DETERMINE ON MODIFY
       IMPORTING keys FOR Security~SetInitialStatus.
@@ -38,6 +47,9 @@ CLASS lhc_Security DEFINITION INHERITING FROM cl_abap_behavior_handler.
 
     METHODS ValidateSecurityType FOR VALIDATE ON SAVE
       IMPORTING keys FOR Security~ValidateSecurityType.
+
+    METHODS validatesecurityTicker FOR VALIDATE ON SAVE
+      IMPORTING keys FOR Security~validatesecurityTicker.
 
 ENDCLASS.
 
@@ -112,13 +124,62 @@ CLASS lhc_Security IMPLEMENTATION.
 
   METHOD ValidateISIN.
 
+    DATA duplicate_buffer_isins TYPE STANDARD TABLE OF zinv_isin WITH EMPTY KEY.
+    DATA isin_range             TYPE RANGE OF zinv_isin.
+    DATA isin_format_error      TYPE abap_boolean VALUE abap_false.
+    DATA isin_unique_error      TYPE abap_boolean VALUE abap_false.
+
     READ ENTITIES OF zinv_r_security IN LOCAL MODE
     ENTITY Security
     FIELDS ( isin )
     WITH CORRESPONDING #( keys )
     RESULT DATA(securities).
 
+    LOOP AT securities INTO DATA(group_securities) GROUP BY (
+        isin = group_securities-isin
+        size = GROUP SIZE
+        )
+        INTO DATA(group_key).
+
+        IF NOT matches(
+           val   = group_key-isin
+           pcre = `[A-Z0-9]{12}`
+         ).
+            CONTINUE.
+        ENDIF.
+
+        IF group_key-size < 2.
+            CONTINUE.
+        ENDIF.
+
+        APPEND  group_key-isin TO duplicate_buffer_isins.
+
+    ENDLOOP.
+
+    LOOP AT securities INTO DATA(unique_security).
+         IF NOT matches(
+           val   = unique_security-isin
+           pcre = `[A-Z0-9]{12}`
+         ).
+            CONTINUE.
+         ENDIF.
+
+      APPEND VALUE #( sign = 'I'
+        option = 'EQ'
+        low = unique_security-isin ) TO isin_range.
+    ENDLOOP.
+
+    IF isin_range IS NOT INITIAL.
+        SELECT FROM zinv_security
+        FIELDS isin
+        WHERE isin IN @isin_range
+        INTO TABLE @DATA(t_notUniqISIN).
+    ENDIF.
+
     LOOP AT securities INTO DATA(security).
+
+        isin_format_error = abap_false.
+        isin_unique_error = abap_false.
 
       "Invalidate an earlier state message for this validation
       APPEND VALUE #(
@@ -126,14 +187,26 @@ CLASS lhc_Security IMPLEMENTATION.
         %state_area = c_state_area_validate_isin
       ) TO reported-Security.
 
-      IF matches(
+      IF NOT matches(
            val   = security-isin
            pcre = `[A-Z0-9]{12}`
          ).
-        CONTINUE.
+        isin_format_error = abap_true.
+      ELSEIF line_exists( t_notUniqISIN[ ISIN = security-isin ] ) or line_exists( duplicate_buffer_isins[ table_line = security-isin ] ).
+        isin_unique_error = abap_true.
       ENDIF.
 
-      APPEND VALUE #(
+    if isin_unique_error = abap_false and isin_format_error = abap_false.
+        CONTINUE.
+    endif.
+
+    DATA(text_error_format) = `ISIN must contain exactly 12 uppercase letters or digits.`.
+    DATA(text_error_unique) = |ISIN { security-isin } already exists.|.
+    DATA(text_error)        =  COND string(
+        WHEN isin_unique_error = abap_true  THEN text_error_unique
+        ELSE text_error_format ).
+
+    APPEND VALUE #(
         %tky = security-%tky
       ) TO failed-Security.
 
@@ -142,13 +215,12 @@ CLASS lhc_Security IMPLEMENTATION.
         %state_area = c_state_area_validate_isin
         %msg        = new_message_with_text(
           severity = if_abap_behv_message=>severity-error
-          text     = `ISIN must contain exactly 12 uppercase letters or digits.`
+          text     = text_error
         )
         %element-isin = if_abap_behv=>mk-on
       ) TO reported-Security.
 
     ENDLOOP.
-
 
   ENDMETHOD.
 
@@ -222,6 +294,89 @@ CLASS lhc_Security IMPLEMENTATION.
       text = 'Security Type can be only <STOCK>' ) ) TO reported-security.
 
     ENDLOOP.
+
+  ENDMETHOD.
+
+  METHOD validatesecurityTicker.
+
+    DATA duplicate_buffer_tickers TYPE STANDARD TABLE OF ZINV_TICKER WITH EMPTY KEY.
+    DATA ticker_range TYPE RANGE OF zinv_ticker.
+    DATA db_ticker_conflict TYPE abap_boolean VALUE abap_false.
+    DATA buffer_ticker_conflict TYPE abap_boolean VALUE abap_false.
+
+    READ ENTITIES OF zinv_r_security IN LOCAL MODE
+    ENTITY Security
+    FIELDS ( SecurityUUID Ticker )
+    WITH CORRESPONDING #( keys )
+    RESULT DATA(securities).
+
+    LOOP AT securities INTO DATA(duplicate_tickers) GROUP BY (
+        ticker = duplicate_tickers-Ticker
+        size = GROUP SIZE
+         ) INTO DATA(group_ticker).
+        IF group_ticker-size < 2.
+            APPEND VALUE #(
+                sign = 'I' option = 'EQ' low = group_ticker-ticker ) TO ticker_range.
+            CONTINUE.
+        ENDIF.
+
+        APPEND group_ticker-ticker To duplicate_buffer_tickers.
+
+    ENDLOOP.
+
+    if ticker_range is not initial.
+        SELECT FROM zinv_security
+        FIELDS securityuuid, ticker
+        WHERE ticker IN @ticker_range
+        INTO TABLE @DATA(db_ticker).
+    endif.
+
+   LOOP AT securities INTO DATA(security).
+
+    buffer_ticker_conflict = abap_false.
+    db_ticker_conflict = abap_false.
+
+    APPEND VALUE #(
+        %tky        = security-%tky
+        %state_area = c_state_area_unique_ticker
+      ) TO reported-Security.
+
+    if line_exists( duplicate_buffer_tickers[ table_line = security-Ticker ] ) .
+        buffer_ticker_conflict = abap_true.
+    ELSE.
+
+    if ticker_range is not initial.
+        LOOP AT db_ticker TRANSPORTING NO FIELDS WHERE (
+            ticker = security-Ticker AND securityuuid <> security-SecurityUUID ).
+                db_ticker_conflict = abap_true.
+            EXIT.
+        ENDLOOP.
+    endif.
+
+    endif.
+
+    IF db_ticker_conflict = abap_false AND buffer_ticker_conflict = abap_false.
+        CONTINUE.
+    ENDIF.
+
+     APPEND VALUE #(
+        %tky = security-%tky
+      ) TO failed-Security.
+
+      APPEND VALUE #(
+        %tky        = security-%tky
+        %state_area = c_state_area_unique_ticker
+        %msg        = new_message_with_text(
+          severity = if_abap_behv_message=>severity-error
+          text     =  |Ticker { security-Ticker } already exists.|
+        )
+        %element-ticker = if_abap_behv=>mk-on
+      ) TO reported-Security.
+
+
+
+   ENDLOOP.
+
 
   ENDMETHOD.
 
