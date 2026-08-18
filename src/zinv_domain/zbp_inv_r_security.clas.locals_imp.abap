@@ -8,10 +8,13 @@ CLASS lhc_Security DEFINITION INHERITING FROM cl_abap_behavior_handler.
       TYPE zinv_sec_status
       VALUE 'ACTIVE'.
 
+     CONSTANTS c_status_delisted
+      TYPE zinv_sec_status
+      VALUE 'DELISTED'.
+
     CONSTANTS c_state_area_validate_isin
       TYPE string
         VALUE 'VALIDATE_ISIN'.
-
 
     CONSTANTS c_state_area_validate_opendate
         TYPE string
@@ -33,6 +36,10 @@ CLASS lhc_Security DEFINITION INHERITING FROM cl_abap_behavior_handler.
       TYPE string
       VALUE 'VALIDATE_UNIQUE_TICKER'.
 
+    CONSTANTS c_state_area_delisted
+      TYPE string
+      VALUE 'DELISTED_ACTIVE_SECURITIES'.
+
     METHODS SetInitialStatus FOR DETERMINE ON MODIFY
       IMPORTING keys FOR Security~SetInitialStatus.
 
@@ -50,6 +57,12 @@ CLASS lhc_Security DEFINITION INHERITING FROM cl_abap_behavior_handler.
 
     METHODS validatesecurityTicker FOR VALIDATE ON SAVE
       IMPORTING keys FOR Security~validatesecurityTicker.
+
+    METHODS delist FOR MODIFY
+      IMPORTING keys FOR ACTION Security~delist RESULT result.
+
+    METHODS get_instance_features FOR INSTANCE FEATURES
+      IMPORTING keys REQUEST requested_features FOR Security RESULT result.
 
 ENDCLASS.
 
@@ -376,6 +389,83 @@ CLASS lhc_Security IMPLEMENTATION.
 
 
    ENDLOOP.
+
+
+  ENDMETHOD.
+
+  METHOD delist.
+
+    DATA update_table TYPE TABLE FOR UPDATE zinv_r_security.
+
+    FINAL(c_date) = cl_abap_context_info=>get_system_date( ).
+
+    READ ENTITIES OF zinv_r_security IN LOCAL MODE
+    ENTITY Security
+    FIELDS ( Status SecurityName )
+    WITH CORRESPONDING #( keys )
+    RESULT DATA(securities).
+
+    LOOP AT securities INTO DATA(security).
+
+        if security-Status = c_status_active.
+
+            APPEND VALUE #(
+                %tky = security-%tky
+                status = c_status_delisted
+                CloseDate =  c_date ) to update_table.
+
+        ELSE.
+            APPEND VALUE #(
+                %tky        = security-%tky
+                %op-%action-delist = if_abap_behv=>mk-on
+                %msg        = new_message_with_text(
+                    severity = if_abap_behv_message=>severity-error
+                    text     = |Security { security-SecurityName } is already delisted.| )
+             ) TO reported-security.
+
+            APPEND VALUE #(
+                %tky        = security-%tky
+             ) to failed-security.
+
+        endif.
+
+    ENDLOOP.
+
+    CHECK update_table IS NOT INITIAL.
+
+    MODIFY ENTITIES OF zinv_r_security IN LOCAL MODE
+    ENTITY Security
+    UPDATE FIELDS ( Status CloseDate )
+    WITH update_table
+    FAILED FINAL(fail_update)
+    REPORTED FINAL(reported_update).
+
+    APPEND LINES OF fail_update-security TO failed-security.
+    APPEND LINES OF reported_update-security TO reported-security.
+
+
+
+    READ ENTITIES OF zinv_r_security IN LOCAL MODE
+    ENTITY Security
+    ALL FIELDS WITH CORRESPONDING #( update_table )
+    RESULT DATA(updated_securities).
+
+    LOOP AT updated_securities INTO DATA(upd_security).
+    IF line_exists( fail_update-security[ KEY id
+         COMPONENTS %tky = upd_security-%tky ] ).
+        CONTINUE.
+    ENDIF.
+
+  APPEND VALUE #(
+    %tky   = upd_security-%tky
+    %param = upd_security
+  ) TO result.
+
+ENDLOOP.
+
+  ENDMETHOD.
+
+  METHOD get_instance_features.
 
 
   ENDMETHOD.

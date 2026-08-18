@@ -6,10 +6,14 @@ CLASS zcl_inv_security_eml DEFINITION
   PUBLIC SECTION.
     INTERFACES if_oo_adt_classrun.
 
+protected section.
+private section.
 ENDCLASS.
 
 
-CLASS zcl_inv_security_eml IMPLEMENTATION.
+
+CLASS ZCL_INV_SECURITY_EML IMPLEMENTATION.
+
 
   METHOD if_oo_adt_classrun~main.
 
@@ -124,5 +128,4 @@ CLASS zcl_inv_security_eml IMPLEMENTATION.
     out->write( securities ).
 
   ENDMETHOD.
-
 ENDCLASS.

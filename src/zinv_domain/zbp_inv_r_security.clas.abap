@@ -1,5 +1,9 @@
 CLASS zbp_inv_r_security DEFINITION PUBLIC ABSTRACT FINAL FOR BEHAVIOR OF zinv_r_security.
+protected section.
+private section.
 ENDCLASS.
 
-CLASS zbp_inv_r_security IMPLEMENTATION.
+
+
+CLASS ZBP_INV_R_SECURITY IMPLEMENTATION.
 ENDCLASS.
