@@ -467,6 +467,21 @@ ENDLOOP.
 
   METHOD get_instance_features.
 
+    READ ENTITIES OF zinv_r_security IN LOCAL MODE
+    ENTITY Security
+    FIELDS ( Status )
+    WITH CORRESPONDING #( keys )
+    RESULT DATA(securities).
+
+    LOOP AT securities INTO DATA(security).
+        APPEND VALUE #(
+            %tky = security-%tky
+            %features-%action-delist = COND #(
+            when security-Status = c_status_active THEN if_abap_behv=>fc-o-enabled
+            ELSE if_abap_behv=>fc-o-disabled )
+         ) TO result.
+
+    ENDLOOP.
 
   ENDMETHOD.
 

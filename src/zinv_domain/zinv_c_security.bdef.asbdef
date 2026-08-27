@@ -1,0 +1,10 @@
+projection;
+strict ( 2 );
+
+define behavior for ZINV_C_SECURITY alias Security
+{
+  use create;
+  use update;
+
+  use action delist;
+}

@@ -1,0 +1,4 @@
+@EndUserText.label: 'Security Service Definiton'
+define service ZINV_SECURITY_SERVICE {
+  expose ZINV_C_SECURITY as Security;
+}
