@@ -64,6 +64,12 @@ CLASS lhc_Security DEFINITION INHERITING FROM cl_abap_behavior_handler.
     METHODS get_instance_features FOR INSTANCE FEATURES
       IMPORTING keys REQUEST requested_features FOR Security RESULT result.
 
+    METHODS is_create_granted
+        RETURNING VALUE(is_create_granted) TYPE abap_boolean.
+
+    METHODS is_update_granted
+        RETURNING VALUE(granted) TYPE abap_bool.
+
 ENDCLASS.
 
 CLASS lhc_Security IMPLEMENTATION.
@@ -71,12 +77,43 @@ CLASS lhc_Security IMPLEMENTATION.
   METHOD get_global_authorizations.
 
     IF requested_authorizations-%create = if_abap_behv=>mk-on.
-      result-%create = if_abap_behv=>auth-allowed.
+      result-%create = COND #(
+        WHEN is_create_granted( ) = abap_true
+        THEN if_abap_behv=>auth-allowed
+        ELSE if_abap_behv=>auth-unauthorized ).
     ENDIF.
 
     IF requested_authorizations-%update = if_abap_behv=>mk-on.
-      result-%update = if_abap_behv=>auth-allowed.
+      result-%update = COND #(
+      WHEN is_update_granted(  ) = abap_true
+      THEN if_abap_behv=>auth-allowed
+      ELSE if_abap_behv=>auth-unauthorized
+       ).
     ENDIF.
+
+  ENDMETHOD.
+
+  METHOD is_create_granted.
+
+    AUTHORITY-CHECK OBJECT 'ZINV_SEC'
+    ID 'ACTVT' FIELD '01'.
+
+    RETURN  COND #(
+        when sy-subrc = 0
+        THEN abap_true
+        ELSE abap_false ).
+
+  ENDMETHOD.
+
+  METHOD is_update_granted.
+
+    AUTHORITY-CHECK OBJECT 'ZINV_SEC'
+    ID 'ACTVT' FIELD '02'.
+
+    RETURN  COND #(
+        when sy-subrc = 0
+        THEN abap_true
+        ELSE abap_false ).
 
   ENDMETHOD.
 

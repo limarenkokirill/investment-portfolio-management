@@ -33,7 +33,8 @@ etag master LocalLastChangedAt
   validation ValidateOpenDate on save  { create; field OpenDate; }
   validation ValidateSecurityType on save { create; field SecurityType; }
   validation validatesecurityTicker on save { create; field Ticker; }
-  action ( features : instance ) delist result [1] $self;
+  action ( features : instance,
+    authorization : update ) delist result [1] $self;
 
   mapping for zinv_security
   {
