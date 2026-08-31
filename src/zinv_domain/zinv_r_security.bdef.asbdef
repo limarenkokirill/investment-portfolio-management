@@ -56,3 +56,8 @@ etag master LocalLastChangedAt
   }
 
 }
+
+define own authorization context
+{
+'ZINV_SEC';
+ }

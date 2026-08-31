@@ -16,6 +16,12 @@
      <OBJECT>S_START</OBJECT>
      <OKFLAG>X</OKFLAG>
     </USOBX>
+    <USOBX>
+     <NAME>811CDB3620570149D0668B24A5CA60</NAME>
+     <TYPE>HT</TYPE>
+     <OBJECT>ZINV_SEC</OBJECT>
+     <OKFLAG>V</OKFLAG>
+    </USOBX>
    </USOBX>
    <USOBX_EXT>
     <item>
@@ -28,6 +34,19 @@
      <CI_TEXT>Check</CI_TEXT>
      <CH_TEXT>Check</CH_TEXT>
      <PR_TEXT>No</PR_TEXT>
+     <EXCEP>3</EXCEP>
+     <EXCEP_TX>Okay</EXCEP_TX>
+     <EXCEP_ICON>@08@</EXCEP_ICON>
+    </item>
+    <item>
+     <OBJECT>ZINV_SEC</OBJECT>
+     <TTEXT>Investment Security Authorization</TTEXT>
+     <OCLSS>CPAE</OCLSS>
+     <OKFLAG>V</OKFLAG>
+     <DEVCLASS>ZINV_DOMAIN</DEVCLASS>
+     <CI_TEXT>Check/Without V</CI_TEXT>
+     <CH_TEXT>Check</CH_TEXT>
+     <PR_TEXT>Yes, Without Values</PR_TEXT>
      <EXCEP>3</EXCEP>
      <EXCEP_TX>Okay</EXCEP_TX>
      <EXCEP_ICON>@08@</EXCEP_ICON>
