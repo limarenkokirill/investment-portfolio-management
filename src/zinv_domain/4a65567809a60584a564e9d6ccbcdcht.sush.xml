@@ -20,9 +20,25 @@
      <NAME>4A65567809A60584A564E9D6CCBCDC</NAME>
      <TYPE>HT</TYPE>
      <OBJECT>ZINV_SEC</OBJECT>
-     <OKFLAG>V</OKFLAG>
+     <OKFLAG>Y</OKFLAG>
     </USOBX>
    </USOBX>
+   <USOBT>
+    <USOBT>
+     <NAME>4A65567809A60584A564E9D6CCBCDC</NAME>
+     <TYPE>HT</TYPE>
+     <OBJECT>ZINV_SEC</OBJECT>
+     <FIELD>ACTVT</FIELD>
+     <LOW>01</LOW>
+    </USOBT>
+    <USOBT>
+     <NAME>4A65567809A60584A564E9D6CCBCDC</NAME>
+     <TYPE>HT</TYPE>
+     <OBJECT>ZINV_SEC</OBJECT>
+     <FIELD>ACTVT</FIELD>
+     <LOW>02</LOW>
+    </USOBT>
+   </USOBT>
    <USOBX_EXT>
     <item>
      <OBJECT>S_START</OBJECT>
@@ -42,16 +58,30 @@
      <OBJECT>ZINV_SEC</OBJECT>
      <TTEXT>Investment Security Authorization</TTEXT>
      <OCLSS>CPAE</OCLSS>
-     <OKFLAG>V</OKFLAG>
+     <OKFLAG>Y</OKFLAG>
      <DEVCLASS>ZINV_DOMAIN</DEVCLASS>
-     <CI_TEXT>Check/Without V</CI_TEXT>
+     <CI_TEXT>Check/Maintain</CI_TEXT>
      <CH_TEXT>Check</CH_TEXT>
-     <PR_TEXT>Yes, Without Values</PR_TEXT>
+     <PR_TEXT>Yes</PR_TEXT>
      <EXCEP>3</EXCEP>
      <EXCEP_TX>Okay</EXCEP_TX>
      <EXCEP_ICON>@08@</EXCEP_ICON>
     </item>
    </USOBX_EXT>
+   <USOBT_EXT>
+    <item>
+     <OBJECT>ZINV_SEC</OBJECT>
+     <TTEXT>Investment Security Authorization</TTEXT>
+     <FIELD>ACTVT</FIELD>
+     <LOW>01</LOW>
+    </item>
+    <item>
+     <OBJECT>ZINV_SEC</OBJECT>
+     <TTEXT>Investment Security Authorization</TTEXT>
+     <FIELD>ACTVT</FIELD>
+     <LOW>02</LOW>
+    </item>
+   </USOBT_EXT>
   </asx:values>
  </asx:abap>
 </abapGit>
