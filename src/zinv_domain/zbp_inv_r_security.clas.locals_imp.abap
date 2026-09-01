@@ -538,10 +538,13 @@ ENDLOOP.
     RESULT DATA(securities).
 
     loop at securities INTO DATA(security).
+            if requested_authorizations-%update = if_abap_behv=>mk-off.
+               CONTINUE.
+            endif.
             APPEND VALUE #(
             %tky = security-%tky
             %update = COND #(
-            when security-Currency = c_currency_eur THEN if_abap_behv=>auth-allowed
+            when security-Currency = c_currency_eur  THEN if_abap_behv=>auth-allowed
             ELSE if_abap_behv=>auth-unauthorized )
          ) TO result.
     endloop.
