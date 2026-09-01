@@ -531,6 +531,8 @@ ENDLOOP.
 
   METHOD get_instance_authorizations.
 
+    CHECK requested_authorizations-%update = if_abap_behv=>mk-on.
+
     READ ENTITIES OF zinv_r_security IN LOCAL MODE
     ENTITY Security
     FIELDS ( Currency )
@@ -538,9 +540,6 @@ ENDLOOP.
     RESULT DATA(securities).
 
     loop at securities INTO DATA(security).
-            if requested_authorizations-%update = if_abap_behv=>mk-off.
-               CONTINUE.
-            endif.
             APPEND VALUE #(
             %tky = security-%tky
             %update = COND #(

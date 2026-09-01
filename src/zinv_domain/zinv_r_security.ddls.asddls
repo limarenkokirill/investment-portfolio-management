@@ -1,4 +1,4 @@
-@AccessControl.authorizationCheck: #NOT_REQUIRED
+@AccessControl.authorizationCheck: #MANDATORY
 @EndUserText.label: 'Security Root View Entity'
 @Metadata.ignorePropagatedAnnotations: true
 define root view entity ZINV_R_SECURITY as select from zinv_security as securityDB

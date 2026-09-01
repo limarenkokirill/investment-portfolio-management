@@ -1,0 +1,11 @@
+@EndUserText.label: 'Access control for security'
+@MappingRole: true
+define role ZINV_AC_SECURITY {
+    grant
+        select
+            on
+                ZINV_R_SECURITY
+                    where
+                        Currency = 'EUR';
+                        
+}
