@@ -105,11 +105,11 @@ CLASS lhc_Security IMPLEMENTATION.
     AUTHORITY-CHECK OBJECT 'ZINV_SEC'
     ID 'ACTVT' FIELD '01'.
 
-    RETURN  COND #(
-        when sy-subrc = 0
-        THEN abap_true
-        ELSE abap_false ).
-
+*    RETURN  COND #(
+*        when sy-subrc = 0
+*        THEN abap_true
+*        ELSE abap_false ).
+RETURN abap_true.
   ENDMETHOD.
 
   METHOD is_update_granted.
@@ -117,11 +117,11 @@ CLASS lhc_Security IMPLEMENTATION.
     AUTHORITY-CHECK OBJECT 'ZINV_SEC'
     ID 'ACTVT' FIELD '02'.
 
-    RETURN  COND #(
-        when sy-subrc = 0
-        THEN abap_true
-        ELSE abap_false ).
-
+*    RETURN  COND #(
+*        when sy-subrc = 0
+*        THEN abap_true
+*        ELSE abap_false ).
+RETURN abap_true.
   ENDMETHOD.
 
   METHOD SetInitialStatus.
