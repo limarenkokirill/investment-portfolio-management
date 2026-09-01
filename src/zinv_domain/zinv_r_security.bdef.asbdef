@@ -1,15 +1,27 @@
 
 managed implementation in class zbp_inv_r_security unique;
 strict ( 2 );
+with draft;
 
 define behavior for ZINV_R_SECURITY alias Security
 persistent table zinv_security
+draft table zinv_security_d
 lock master
+total etag LastChangedAt
 authorization master ( global, instance )
 etag master LocalLastChangedAt
 {
   create;
   update;
+  internal delete;
+
+  draft action Edit;
+  draft action Activate optimized;
+  draft action Discard;
+  draft action Resume;
+
+
+
   field ( numbering : managed, readonly ) SecurityUUID;
   field ( mandatory : create ) Ticker, OpenDate;
   field ( mandatory : create, readonly : update )
@@ -35,6 +47,14 @@ etag master LocalLastChangedAt
   validation validatesecurityTicker on save { create; field Ticker; }
   action ( features : instance,
     authorization : update ) delist result [1] $self;
+
+  draft determine action Prepare
+   {
+      validation validatesecurityTicker;
+      validation ValidateSecurityType;
+      validation ValidateOpenDate;
+      validation ValidateISIN;
+   }
 
   mapping for zinv_security
   {

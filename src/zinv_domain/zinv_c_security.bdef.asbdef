@@ -1,10 +1,16 @@
 projection;
 strict ( 2 );
+use draft;
 
 define behavior for ZINV_C_SECURITY alias Security
 {
   use create;
   use update;
+  use action Edit;
+  use action Activate;
+  use action Discard;
+  use action Prepare;
+  use action Resume;
 
   use action delist;
 }
