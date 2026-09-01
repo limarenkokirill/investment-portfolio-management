@@ -12,6 +12,9 @@ define root view entity ZINV_C_SECURITY
     OpenDate,
     CloseDate,
     SecurityType as InstrumentType,
+    @Consumption.valueHelpDefinition: [{ 
+    entity: { name: 'I_Currency', element: 'Currency' }
+    }]
     Currency,
     Status,
     CreatedBy,

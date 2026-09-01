@@ -109,7 +109,7 @@ CLASS lhc_Security IMPLEMENTATION.
         when sy-subrc = 0
         THEN abap_true
         ELSE abap_false ).
-
+*    RETURN abap_true.
   ENDMETHOD.
 
   METHOD is_update_granted.

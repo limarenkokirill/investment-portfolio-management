@@ -51,7 +51,7 @@ CLASS ZCL_INV_SECURITY_EML IMPLEMENTATION.
             OpenDate     = cl_abap_context_info=>get_system_date( )
 
             SecurityType = 'STOCK'
-            Currency     = 'EUR'
+            Currency     = 'USD'
           )
           (
             %cid         = 'SECURITY_CREATE_2'
@@ -62,7 +62,7 @@ CLASS ZCL_INV_SECURITY_EML IMPLEMENTATION.
             OpenDate     = cl_abap_context_info=>get_system_date( )
 
             SecurityType = 'STOCK'
-            Currency     = 'EUR'
+            Currency     = 'RUB'
           )
         )
       MAPPED DATA(mapped)
