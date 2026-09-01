@@ -4,13 +4,17 @@ CLASS lhc_Security DEFINITION INHERITING FROM cl_abap_behavior_handler.
     METHODS get_global_authorizations FOR GLOBAL AUTHORIZATION
       IMPORTING REQUEST requested_authorizations FOR Security RESULT result.
 
+    CONSTANTS c_currency_eur
+      TYPE sycurr
+      VALUE 'EUR'.
+
     CONSTANTS c_status_active
       TYPE zinv_sec_status
       VALUE 'ACTIVE'.
 
-     CONSTANTS c_status_delisted
-      TYPE zinv_sec_status
-      VALUE 'DELISTED'.
+    CONSTANTS c_status_delisted
+     TYPE zinv_sec_status
+     VALUE 'DELISTED'.
 
     CONSTANTS c_state_area_validate_isin
       TYPE string
@@ -63,6 +67,9 @@ CLASS lhc_Security DEFINITION INHERITING FROM cl_abap_behavior_handler.
 
     METHODS get_instance_features FOR INSTANCE FEATURES
       IMPORTING keys REQUEST requested_features FOR Security RESULT result.
+
+    METHODS get_instance_authorizations FOR INSTANCE AUTHORIZATION
+      keys REQUEST requested_authorizations FOR Security RESULT result.
 
     METHODS is_create_granted
         RETURNING VALUE(is_create_granted) TYPE abap_boolean.
@@ -519,6 +526,25 @@ ENDLOOP.
          ) TO result.
 
     ENDLOOP.
+
+  ENDMETHOD.
+
+  METHOD get_instance_authorizations.
+
+    READ ENTITIES OF zinv_r_security IN LOCAL MODE
+    ENTITY Security
+    FIELDS ( Currency )
+    WITH CORRESPONDING #( keys )
+    RESULT DATA(securities).
+
+    loop at securities INTO DATA(security).
+            APPEND VALUE #(
+            %tky = security-%tky
+            %update = COND #(
+            when security-Currency = c_currency_eur THEN if_abap_behv=>auth-allowed
+            ELSE if_abap_behv=>auth-unauthorized )
+         ) TO result.
+    endloop.
 
   ENDMETHOD.
 

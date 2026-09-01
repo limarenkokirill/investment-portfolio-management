@@ -5,7 +5,7 @@ strict ( 2 );
 define behavior for ZINV_R_SECURITY alias Security
 persistent table zinv_security
 lock master
-authorization master ( global )
+authorization master ( global, instance )
 etag master LocalLastChangedAt
 {
   create;
