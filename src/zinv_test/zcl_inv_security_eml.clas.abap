@@ -53,17 +53,17 @@ CLASS ZCL_INV_SECURITY_EML IMPLEMENTATION.
             SecurityType = 'STOCK'
             Currency     = 'USD'
           )
-          (
-            %cid         = 'SECURITY_CREATE_2'
-            isin         = test_isin
-            Ticker       = test_ticker
-            SecurityName = 'EML Test Security'
-            Issuer       = 'Test Issuer'
-            OpenDate     = cl_abap_context_info=>get_system_date( )
-
-            SecurityType = 'STOCK'
-            Currency     = 'RUB'
-          )
+*          (
+*            %cid         = 'SECURITY_CREATE_2'
+*            isin         = test_isin
+*            Ticker       = test_ticker
+*            SecurityName = 'EML Test Security'
+*            Issuer       = 'Test Issuer'
+*            OpenDate     = cl_abap_context_info=>get_system_date( )
+*
+*            SecurityType = 'STOCK'
+*            Currency     = 'RUB'
+*          )
         )
       MAPPED DATA(mapped)
       FAILED DATA(failed)
