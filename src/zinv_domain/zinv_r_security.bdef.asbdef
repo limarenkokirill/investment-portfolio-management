@@ -47,6 +47,9 @@ etag master LocalLastChangedAt
   validation validatesecurityTicker on save { create; field Ticker; }
   action ( features : instance,
     authorization : update ) delist result [1] $self;
+  action ( features : instance ) changeTicker result [1] $self;
+
+
 
   draft determine action Prepare
    {

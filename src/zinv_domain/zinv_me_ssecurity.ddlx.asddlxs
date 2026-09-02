@@ -1,0 +1,22 @@
+@Metadata.layer: #CORE
+annotate entity ZINV_C_SECURITY
+    with 
+{
+
+@UI: { 
+  lineItem:       [{ position: 10 }],
+  identification: [{ position: 10 }],
+  
+  facet: [{
+  id:       'Security',
+  purpose:  #STANDARD,
+  type:     #IDENTIFICATION_REFERENCE,
+  label:    'Security',
+  position: 10
+    }]
+}
+   
+  SecurityName;
+
+    
+}

@@ -71,6 +71,9 @@ CLASS lhc_Security DEFINITION INHERITING FROM cl_abap_behavior_handler.
     METHODS get_instance_authorizations FOR INSTANCE AUTHORIZATION
       keys REQUEST requested_authorizations FOR Security RESULT result.
 
+    METHODS changeticker FOR MODIFY
+      keys FOR ACTION security~changeticker RESULT result.
+
     METHODS is_create_granted
         RETURNING VALUE(is_create_granted) TYPE abap_boolean.
 
@@ -105,11 +108,11 @@ CLASS lhc_Security IMPLEMENTATION.
     AUTHORITY-CHECK OBJECT 'ZINV_SEC'
     ID 'ACTVT' FIELD '01'.
 
-*    RETURN  COND #(
-*        when sy-subrc = 0
-*        THEN abap_true
-*        ELSE abap_false ).
-RETURN abap_true.
+    RETURN  COND #(
+        when sy-subrc = 0
+        THEN abap_true
+        ELSE abap_false ).
+*RETURN abap_true.
   ENDMETHOD.
 
   METHOD is_update_granted.
@@ -117,11 +120,11 @@ RETURN abap_true.
     AUTHORITY-CHECK OBJECT 'ZINV_SEC'
     ID 'ACTVT' FIELD '02'.
 
-*    RETURN  COND #(
-*        when sy-subrc = 0
-*        THEN abap_true
-*        ELSE abap_false ).
-RETURN abap_true.
+    RETURN  COND #(
+        when sy-subrc = 0
+        THEN abap_true
+        ELSE abap_false ).
+*RETURN abap_true.
   ENDMETHOD.
 
   METHOD SetInitialStatus.
@@ -547,6 +550,92 @@ ENDLOOP.
             ELSE if_abap_behv=>auth-unauthorized )
          ) TO result.
     endloop.
+
+  ENDMETHOD.
+
+  METHOD changeTicker.
+
+    DATA update_table TYPE TABLE FOR UPDATE zinv_r_security.
+    DATA empty_ticker TYPE string VALUE ''.
+
+    READ ENTITIES OF zinv_r_security IN LOCAL MODE
+    ENTITY Security
+    FIELDS ( Ticker Status SecurityName )
+    WITH CORRESPONDING #( keys )
+    RESULT DATA(securities).
+
+    LOOP AT securities INTO DATA(security).
+        IF security-Ticker = empty_ticker.
+
+            APPEND VALUE #(
+                %tky = security-%tky
+                %op-%action-delist = if_abap_behv=>mk-on
+                %msg        = new_message_with_text(
+                    severity = if_abap_behv_message=>severity-error
+                    text     = |Ticker { security-Ticker } must be not empty.| )
+
+             ) TO reported-security.
+
+            APPEND VALUE #(
+                %tky = security-%tky
+
+             ) TO failed-security.
+
+        CONTINUE.
+        ELSEIF security-status <> c_status_active.
+
+             APPEND VALUE #(
+                %tky = security-%tky
+                %op-%action-delist = if_abap_behv=>mk-on
+                %msg        = new_message_with_text(
+                    severity = if_abap_behv_message=>severity-error
+                    text     = |Security { security-SecurityName } must be active.| )
+             ) TO reported-security.
+
+            APPEND VALUE #(
+                %tky = security-%tky
+
+             ) TO failed-security.
+
+        CONTINUE.
+        ENDIF.
+
+            APPEND VALUE #(
+                %tky = security-%tky
+                ticker = to_upper( val = security-Ticker )
+             ) TO update_table.
+
+    ENDLOOP.
+
+    CHECK update_table IS INITIAL.
+
+    MODIFY ENTITIES OF zinv_r_security IN LOCAL MODE
+    ENTITY Security
+    UPDATE FIELDS ( Ticker )
+    WITH update_table
+    FAILED FINAL(fail_update)
+    REPORTED FINAL(reported_update).
+
+    APPEND LINES OF fail_update-security TO failed-security.
+    APPEND LINES OF reported_update-security TO reported-security.
+
+    READ ENTITIES OF zinv_r_security IN LOCAL MODE
+    ENTITY Security
+    ALL FIELDS WITH CORRESPONDING #( update_table )
+    RESULT DATA(updated_securities).
+
+    LOOP AT updated_securities INTO DATA(upd_security).
+    IF line_exists( fail_update-security[ KEY id
+         COMPONENTS %tky = upd_security-%tky ] ).
+        CONTINUE.
+    ENDIF.
+
+    APPEND VALUE #(
+    %tky   = upd_security-%tky
+    %param = upd_security
+        ) TO result.
+    ENDLOOP.
+
 
   ENDMETHOD.
 
